@@ -20,6 +20,7 @@
 """Publish to Graphite
 """
 
+import ceilometer
 from ceilometer import publisher
 from ceilometer.openstack.common import log
 try:
@@ -50,11 +51,11 @@ OPTS = [cfg.Opt('default_port',
                 type=PortType,
                 help='Default port for communicating with Graphite'),
         cfg.StrOpt('protocol',
-                   default='udp',
+                   default='tcp',
                    help='Protocol (tcp or udp) to use for '
                    'communicating with Graphite'),
         cfg.StrOpt('prefix',
-                   default='ceilometer',
+                   default='ceilometer.',
                    help='Graphite prefix key'),
         cfg.BoolOpt('hypervisor_in_prefix',
                     default=True,
@@ -81,18 +82,21 @@ class GraphitePublisher(publisher.PublisherBase):
             self.prefix = cfg.CONF.graphite.prefix
 
     def graphitePush(self, metric):
-        LOG.debug("Sending graphite metric:" + metric)
+        LOG.debug("Sending graphite metric: " + metric)
 
         if cfg.CONF.graphite.protocol.lower() == 'tcp':
+            LOG.debug(_("====MDAVID==> protocol TCP"))
             graphiteSock = socket.socket(socket.AF_INET,
                                          socket.SOCK_STREAM)
         elif cfg.CONF.graphite.protocol.lower() == 'udp':
+            LOG.debug(_("====MDAVID==> protocol UDP"))
             graphiteSock = socket.socket(socket.AF_INET,
                                          socket.SOCK_DGRAM)
         else:
             raise ValueError('%s: invalid protocol' % (
                 cfg.CONF.graphite.protocol))
 
+        LOG.debug(_("====MDAVID==> connect to: %s:%s") % (self.host, self.port))
         graphiteSock.connect((self.host, self.port))
         graphiteSock.sendall(metric)
         graphiteSock.close()
