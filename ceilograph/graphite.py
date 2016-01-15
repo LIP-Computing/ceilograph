@@ -65,10 +65,10 @@ class GraphitePublisher(publisher.PublisherBase):
             parsed_url.netloc,
             default_port=cfg.CONF.graphite.default_port)
 
+        self.hostname = socket.gethostname().split('.')[0]
+        self.prefix_account = "accounting.cloud." + self.hostname
         if cfg.CONF.graphite.hypervisor_in_prefix:
-            self.prefix = (
-                cfg.CONF.graphite.prefix
-                + socket.gethostname().split('.')[0] + ".")
+            self.prefix = (cfg.CONF.graphite.prefix + self.hostname + ".")
         else:
             self.prefix = cfg.CONF.graphite.prefix
 
@@ -88,16 +88,16 @@ class GraphitePublisher(publisher.PublisherBase):
         #graphiteSock.close()
 
     def publish_samples(self, context, samples):
+        acct_list = []
         for sample in samples:
-            LOG.debug("====|ASAMPLE: %s|" % sample)
             stats_time = time.time()
             msg = sample.as_dict()
-            LOG.debug("====|AMSG: %s|" % msg)
             prefix = self.prefix
 
             # for getting a clear idea of the attributes
             resource_id = msg['resource_id']
             project_id = msg['project_id']
+            user_id = msg['user_id']
             data_type = msg['type']  # gauge, cumulative, delta
             volume = msg['volume']  # usage
             metric_name = msg['name']  # network,instance,cpu, disk etc ..
@@ -105,6 +105,7 @@ class GraphitePublisher(publisher.PublisherBase):
             instance_match = re.match('instance', metric_name)
             network_match = re.match('network', metric_name)
             disk_match = re.match('disk', metric_name)
+            mem_match = re.match('memory', metric_name)
 
             # ram,cpu, and disk is not present on all metrics
             if disk_match:
@@ -146,11 +147,19 @@ class GraphitePublisher(publisher.PublisherBase):
             else:
                 LOG.debug(_("[-]"))
 
+            # Publish accounting to graphite
+            if metric_name == 'cpu_util' or mem_match:
+                acct = self.prefix_account + '.' + project_id + '.' + user_id
+                    + '.' + metric_name + ' ' + volume + ' ' + stats_time
+                    + '\n'
+                acct_list.append(acct)
+
             try:
                 LOG.debug(_("OK"))
             except Exception as e:
                 LOG.warn(_("Unable to send to Graphite"))
                 LOG.exception(e)
+        LOG.debug('---> LISTACCT: %s' % acct_list)
 
     def publish_events(self, context, events):
         """Send an event message for publishing
