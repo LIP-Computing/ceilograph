@@ -153,6 +153,7 @@ class GraphitePublisher(publisher.PublisherBase):
                     + '.' + metric_name + ' ' + volume + ' ' + stats_time
                     + '\n'
                 acct_list.append(acct)
+                LOG.debug('---> ACCT: %s' % acct)
 
             try:
                 LOG.debug(_("OK"))
