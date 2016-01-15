@@ -4,6 +4,7 @@
 #
 # Author: Sashi Dahal <shashi.dahal@spilgames.com>
 # Author: Robert van Leeuwen <robert.vanleeuwen@spilgames.com>
+# Modified by Mario David <mariojmdavid@gmail.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -20,31 +21,23 @@
 """Publish to Graphite
 """
 
-import ceilometer
-from ceilometer import publisher
-from ceilometer.openstack.common import log
-try:
-    from oslo.utils import netutils as network_utils
-except ImportError:
-    from ceilometer.openstack.common import network_utils
-
-try:
-    from ceilometer.openstack.common.gettextutils import _
-except ImportError:
-    from ceilometer.i18n import _
-
-import socket
-from oslo.config import cfg
-from oslo.config import types
-
 import time
 import re
+import socket
+
+from oslo_config import cfg
+from oslo_config import types
+from oslo_utils import netutils
+
+import ceilometer
+from ceilometer.i18n import _
+from ceilometer.openstack.common import log
+from ceilometer import publisher
 
 PortType = types.Integer(1, 65535)
-
-cfg.CONF.import_opt('udp_port', 'ceilometer.collector',
+cfg.CONF.import_opt('udp_port',
+                    'ceilometer.collector',
                     group='collector')
-
 
 OPTS = [cfg.Opt('default_port',
                 default=2003,
@@ -63,14 +56,12 @@ OPTS = [cfg.Opt('default_port',
         ]
 
 cfg.CONF.register_opts(OPTS, group="graphite")
-
 LOG = log.getLogger(__name__)
 
 
 class GraphitePublisher(publisher.PublisherBase):
-
     def __init__(self, parsed_url):
-        self.host, self.port = network_utils.parse_host_port(
+        self.host, self.port = netutils.parse_host_port(
             parsed_url.netloc,
             default_port=cfg.CONF.graphite.default_port)
 
@@ -83,29 +74,23 @@ class GraphitePublisher(publisher.PublisherBase):
 
     def graphitePush(self, metric):
         LOG.debug("Sending graphite metric: " + metric)
-
         if cfg.CONF.graphite.protocol.lower() == 'tcp':
-            LOG.debug(_("====MDAVID==> protocol TCP"))
-            graphiteSock = socket.socket(socket.AF_INET,
-                                         socket.SOCK_STREAM)
+            graphiteSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         elif cfg.CONF.graphite.protocol.lower() == 'udp':
-            LOG.debug(_("====MDAVID==> protocol UDP"))
-            graphiteSock = socket.socket(socket.AF_INET,
-                                         socket.SOCK_DGRAM)
+            graphiteSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         else:
-            raise ValueError('%s: invalid protocol' % (
-                cfg.CONF.graphite.protocol))
+            raise ValueError('%s: invalid protocol' %
+                                (cfg.CONF.graphite.protocol))
 
-        LOG.debug(_("====MDAVID==> connect to: %s:%s") % (self.host, self.port))
-        graphiteSock.connect((self.host, self.port))
-        graphiteSock.sendall(metric)
-        graphiteSock.close()
+        # For testing purposes we will not publish to graphite
+        #graphiteSock.connect((self.host, self.port))
+        #graphiteSock.sendall(metric)
+        #graphiteSock.close()
 
     def publish_samples(self, context, samples):
         for sample in samples:
-
+            LOG.debug("====|ASAMPLE: %s|" % sample)
             stats_time = time.time()
-
             msg = sample.as_dict()
             prefix = self.prefix
 
@@ -116,7 +101,6 @@ class GraphitePublisher(publisher.PublisherBase):
             volume = msg['volume']  # usage
             metric_name = msg['name']  # network,instance,cpu, disk etc ..
             metadata = msg['resource_metadata']
-
             instance_match = re.match('instance', metric_name)
             network_match = re.match('network', metric_name)
             disk_match = re.match('disk', metric_name)
@@ -127,11 +111,9 @@ class GraphitePublisher(publisher.PublisherBase):
                 vcpus = metadata['vcpus']
                 disk_gb = metadata['disk_gb']
                 vmid = metadata.get('instance_id')
-
             if network_match:
                 vmid = metadata.get('instance_id')
                 vm = vmid
-
             else:
                 vm = resource_id
 
@@ -150,28 +132,21 @@ class GraphitePublisher(publisher.PublisherBase):
             # build the metrics to send to graphite
             # We are only interested in the gauge data
             # Skipping Instance related metrics
-
             if data_type == 'gauge' and instance_match is None:
-
                 stats_time = time.time()
-
                 vmstat = "%s%s.%s.%s %s %d\n" % (
                     prefix, project_id, vm, metric_name, volume, stats_time)
                 self.graphitePush(vmstat)
-
                 if disk_match:
                     self.graphitePush(vmram)
                     self.graphitePush(vmcpu)
                     self.graphitePush(vmdisk)
-
                 print ""
-
             else:
                 LOG.debug(_("[-]"))
 
             try:
                 LOG.debug(_("OK"))
-
             except Exception as e:
                 LOG.warn(_("Unable to send to Graphite"))
                 LOG.exception(e)
