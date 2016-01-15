@@ -92,6 +92,7 @@ class GraphitePublisher(publisher.PublisherBase):
             LOG.debug("====|ASAMPLE: %s|" % sample)
             stats_time = time.time()
             msg = sample.as_dict()
+            LOG.debug("====|AMSG: %s|" % msg)
             prefix = self.prefix
 
             # for getting a clear idea of the attributes
