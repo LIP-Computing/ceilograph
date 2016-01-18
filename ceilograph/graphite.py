@@ -149,9 +149,10 @@ class GraphitePublisher(publisher.PublisherBase):
 
             # Publish accounting to graphite
             if metric_name == 'cpu_util' or mem_match:
-                acct = self.prefix_account + '.' + project_id + '.' + user_id
-                    + '.' + metric_name + ' ' + volume + ' ' + stats_time
-                    + '\n'
+                LOG.debug('---> MetricName: %s' % metric_name)
+                acct = self.prefix_account + '.' + project_id + '.' + user_id \
+                        + '.' + metric_name + ' ' + volume + ' ' + stats_time \
+                        + '\n'
                 acct_list.append(acct)
                 LOG.debug('---> ACCT: %s' % acct)
 
