@@ -148,11 +148,12 @@ class GraphitePublisher(publisher.PublisherBase):
                 LOG.debug(_("[-]"))
 
             # Publish accounting to graphite
+            LOG.debug('---> MetricName: %s' % metric_name)
+            LOG.debug('---> MetricName MATCHmem: %s' % mem_match)
             if metric_name == 'cpu_util' or mem_match:
-                LOG.debug('---> MetricName: %s' % metric_name)
                 acct = self.prefix_account + '.' + project_id + '.' + user_id \
-                        + '.' + metric_name + ' ' + volume + ' ' + stats_time \
-                        + '\n'
+                    + '.' + metric_name + ' ' + volume + ' ' + stats_time \
+                    + '\n'
                 acct_list.append(acct)
                 LOG.debug('---> ACCT: %s' % acct)
 
