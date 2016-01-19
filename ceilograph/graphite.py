@@ -37,6 +37,7 @@ from ceilometer.i18n import _
 from ceilometer.openstack.common import log
 from ceilometer import publisher
 
+cfg.CONF.import_group('service_credentials', 'ceilometer.service')
 cfg.CONF.import_opt('udp_port', 'ceilometer.collector', group='collector')
 cfg.CONF.import_group('keystone_authtoken',
                       'keystoneclient.middleware.auth_token')
@@ -69,7 +70,6 @@ class GraphitePublisher(publisher.PublisherBase):
         self.host, self.port = netutils.parse_host_port(
             parsed_url.netloc,
             default_port=cfg.CONF.graphite.default_port)
-
         self.hostname = socket.gethostname().split('.')[0]
         self.prefix_account = "accounting.cloud." + self.hostname
         self.ks = self._get_keystone()
@@ -199,7 +199,7 @@ class GraphitePublisher(publisher.PublisherBase):
 
     def _get_keystone(self):
         user_id = cfg.CONF.graphite.os_user_id
-        password = cfg.CONF.keystone_authtoken.os_password
+        password = cfg.CONF.service_credentials.os_password
         project_id = cfg.CONF.graphite.os_tenant_id
         auth_uri = cfg.CONF.keystone_authtoken.auth_uri
         auth_version = cfg.CONF.keystone_authtoken.auth_version
