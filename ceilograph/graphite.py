@@ -38,9 +38,7 @@ from ceilometer.openstack.common import log
 from ceilometer import publisher
 
 cfg.CONF.import_opt('udp_port', 'ceilometer.collector', group='collector')
-cfg.CONF.import_opt('os_username',
-                    'ceilometer.service',
-                    group='service_credentials')
+cfg.CONF.import_group('service_credentials', 'ceilometer.service')
 cfg.CONF.import_group('keystone_authtoken',
                       'keystoneclient.middleware.auth_token')
 PortType = types.Integer(1, 65535)
@@ -199,8 +197,8 @@ class GraphitePublisher(publisher.PublisherBase):
 
     def _get_keystone(self):
         username = cfg.CONF.service_credentials.os_username
-        password = cfg.CONF.keystone_authtoken.password
-        project_name = cfg.CONF.keystone_authtoken.project_name
+        password = cfg.CONF.service_credentials.os_password
+        project_name = cfg.CONF.service_credentials.os_tenant_name
         auth_url = cfg.CONF.keystone_authtoken.auth_url
         auth_version = cfg.CONF.keystone_authtoken.auth_version
         url = auth_url + '/' + auth_version
