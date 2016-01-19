@@ -29,7 +29,7 @@ from oslo_config import cfg
 from oslo_config import types
 from oslo_utils import netutils
 from keystoneclient import session as kssession
-#from keystoneclient.middleware import auth_token
+from keystoneclient.middleware import auth_token
 from keystoneclient.auth.identity import v3
 from keystoneclient.v3 import client as ksclient
 
@@ -195,7 +195,7 @@ class GraphitePublisher(publisher.PublisherBase):
         user_name = self.ks.users.get(user_id)
         return user_name
 
-    def _get_keystone():
+    def _get_keystone(self):
         username = cfg.CONF.keystone_authtoken.username
         password = cfg.CONF.keystone_authtoken.password
         project_name = cfg.CONF.keystone_authtoken.project_name
