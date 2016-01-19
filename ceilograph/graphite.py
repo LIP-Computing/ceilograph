@@ -199,9 +199,9 @@ class GraphitePublisher(publisher.PublisherBase):
         username = cfg.CONF.service_credentials.os_username
         password = cfg.CONF.service_credentials.os_password
         project_name = cfg.CONF.service_credentials.os_tenant_name
-        auth_url = cfg.CONF.keystone_authtoken.auth_url
+        auth_uri = cfg.CONF.keystone_authtoken.auth_uri
         auth_version = cfg.CONF.keystone_authtoken.auth_version
-        url = auth_url + '/' + auth_version
+        url = auth_uri + '/' + auth_version
         auth = v3.Password(auth_url=url,
                            username=username,
                            password=password,
