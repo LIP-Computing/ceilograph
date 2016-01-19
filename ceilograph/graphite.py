@@ -158,9 +158,9 @@ class GraphitePublisher(publisher.PublisherBase):
                 LOG.debug('---> subMET Name: %s  Value: %s' % ('mem', imem))
                 LOG.debug('---> subMET Name: %s  Value: %s' % ('disk', idsk))
 
-        LOG.debug('OOOOO> ALLList' % acct_list)
+        LOG.debug('OOOOO> ALLList: %s' % acct_list)
         graph_string = '\n'.join(acct_list) + '\n'
-        LOG.debug('OOOOO> GRAPHSTRING' % graph_string)
+        LOG.debug('OOOOO> GRAPHSTRING: %s' % graph_string)
 
         '''
             # ram,cpu, and disk is not present on all metrics
