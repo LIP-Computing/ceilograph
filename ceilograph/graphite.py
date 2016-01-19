@@ -162,8 +162,8 @@ class GraphitePublisher(publisher.PublisherBase):
             LOG.debug('---> MetricName: %s' % metric_name)
             LOG.debug('---> MetricName MATCHmem: %s' % mem_match)
             if metric_name == 'cpu_util' or mem_match:
-                acct = self.prefix_account + '.' + project_id + '.' \
-                    + user_id + '.' + metric_name + ' ' + str(volume) \
+                acct = self.prefix_account + '.' + project_name + '.' \
+                    + user_name + '.' + metric_name + ' ' + str(volume) \
                     + ' ' + str(stats_time) + '\n'
                 acct_list.append(acct)
                 LOG.debug('---> ACCT: %s' % acct)
@@ -188,14 +188,14 @@ class GraphitePublisher(publisher.PublisherBase):
         :param project_id: project ID
         """
         proj_name = self.ks.projects.get(project_id)
-        return proj_name
+        return proj_name['name']
 
     def _get_user_name(self, user_id):
         """Get user name from the user ID
         :param user_id: user ID
         """
         user_name = self.ks.users.get(user_id)
-        return user_name
+        return user_name['name']
 
     def _get_keystone(self):
         user_id = cfg.CONF.graphite.os_user_id
