@@ -28,8 +28,9 @@ import socket
 from oslo_config import cfg
 from oslo_config import types
 from oslo_utils import netutils
-from keystoneclient import client as ksclient
-from keystoneclient.middleware import auth_token
+from keystoneclient.auth.identity import v3
+from keystoneclient import session as kssession
+from keystoneclient.v3 import client as ksclient
 
 import ceilometer
 from ceilometer.i18n import _
@@ -67,7 +68,7 @@ class GraphitePublisher(publisher.PublisherBase):
 
         self.hostname = socket.gethostname().split('.')[0]
         self.prefix_account = "accounting.cloud." + self.hostname
-        self.ks = ksclient.Client(auth_url=
+        self.ks = self._get_keystone()
         if cfg.CONF.graphite.hypervisor_in_prefix:
             self.prefix = (cfg.CONF.graphite.prefix + self.hostname + ".")
         else:
@@ -193,14 +194,15 @@ class GraphitePublisher(publisher.PublisherBase):
         return user_name
 
     def _get_keystone():
-        try:
-            return ksclient.Client(
-                username=cfg.CONF.keystone_authtoken.username,
-                password=cfg.CONF.keystone_authtoken.password,
-                project_name=cfg.CONF.keystone_authtoken.project_name,
-                cacert=cfg.CONF.keystone_authtoken.cacert,
-                auth_uri=cfg.CONF.keystone_authtoken.auth_uri,
-                region_name=cfg.CONF.keystone_authtoken.os_region_name,
-                insecure=cfg.CONF.keystone_authtoken.insecure)
-        except Exception as e:
-            return e
+        username = cfg.CONF.keystone_authtoken.username
+        password = cfg.CONF.keystone_authtoken.password
+        project_name = cfg.CONF.keystone_authtoken.project_name
+        auth_url = cfg.CONF.keystone_authtoken.auth_url
+        auth_version = cfg.CONF.keystone_authtoken.auth_version
+        url = auth_url + '/' + auth_version
+        auth = v3.Password(auth_url=url,
+                           username=username,
+                           password=password,
+                           project_name=project_name)
+        sess = kssession.Session(auth=auth)
+        return ksclient.Client(session=sess)
