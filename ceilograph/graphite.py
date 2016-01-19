@@ -71,7 +71,7 @@ class GraphitePublisher(publisher.PublisherBase):
             parsed_url.netloc,
             default_port=cfg.CONF.graphite.default_port)
         self.hostname = socket.gethostname().split('.')[0]
-        self.prefix_account = "accounting.cloud." + self.hostname
+        self.prefix_account = "testacct.cloud." + self.hostname
         self.ks = self._get_keystone()
         if cfg.CONF.graphite.hypervisor_in_prefix:
             self.prefix = (cfg.CONF.graphite.prefix + self.hostname + ".")
@@ -85,8 +85,7 @@ class GraphitePublisher(publisher.PublisherBase):
         elif cfg.CONF.graphite.protocol.lower() == 'udp':
             graphiteSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         else:
-            raise ValueError('%s: invalid protocol' %
-                                (cfg.CONF.graphite.protocol))
+            raise ValueError('%s: invalid prot' % (cfg.CONF.graphite.protocol))
 
         # For testing purposes we will not publish to graphite
         #graphiteSock.connect((self.host, self.port))
@@ -100,24 +99,22 @@ class GraphitePublisher(publisher.PublisherBase):
             msg = sample.as_dict()
             prefix = self.prefix
 
-            # for getting a clear idea of the attributes
+            time_st = msg['timestamp']
             resource_id = msg['resource_id']
             project_id = msg['project_id']
             user_id = msg['user_id']
-            data_type = msg['type']  # gauge, cumulative, delta
-            volume = msg['volume']  # usage
-            metric_name = msg['name']  # network,instance,cpu, disk etc ..
-            metadata = msg['resource_metadata']
-            instance_match = re.match('instance', metric_name)
-            network_match = re.match('network', metric_name)
-            disk_match = re.match('disk', metric_name)
-            mem_match = re.match('memory', metric_name)
+            data_type = msg['type']
+            value = str(msg['volume'])
+            metric_name = msg['name']
             user_name = self._get_user_name(user_id)
             project_name = self._get_project_name(project_id)
 
-            LOG.debug('---> PROJECTName: %s' % project_name)
-            LOG.debug('---> USERName: %s' % user_name)
+            LOG.debug('---> PROJECT Name: %s' % project_name)
+            LOG.debug('---> USER Name: %s' % user_name)
+            LOG.debug('---> METRIC Name: %s  Value: %s' % (metric_name, value))
+            LOG.debug('---> TimeST: %s  TimeSamp: %s' % (stats_time, time_st))
 
+        '''
             # ram,cpu, and disk is not present on all metrics
             if disk_match:
                 ram = metadata['memory_mb']
@@ -159,8 +156,7 @@ class GraphitePublisher(publisher.PublisherBase):
                 LOG.debug(_("[-]"))
 
             # Publish accounting to graphite
-            LOG.debug('---> MetricName: %s' % metric_name)
-            LOG.debug('---> MetricName MATCHmem: %s' % mem_match)
+            # LOG.debug('---> MetricName: %s' % metric_name)
             if metric_name == 'cpu_util' or mem_match:
                 acct = self.prefix_account + '.' + project_name + '.' \
                     + user_name + '.' + metric_name + ' ' + str(volume) \
@@ -174,6 +170,7 @@ class GraphitePublisher(publisher.PublisherBase):
                 LOG.warn(_("Unable to send to Graphite"))
                 LOG.exception(e)
         LOG.debug('---> LISTACCT: %s' % acct_list)
+        '''
 
     def publish_events(self, context, events):
         '''Send an event message for publishing
