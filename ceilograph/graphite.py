@@ -86,11 +86,9 @@ class GraphitePublisher(publisher.PublisherBase):
             graphiteSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         else:
             raise ValueError('%s: invalid prot' % (cfg.CONF.graphite.protocol))
-
-        # For testing purposes we will not publish to graphite
-        #graphiteSock.connect((self.host, self.port))
-        #graphiteSock.sendall(metric)
-        #graphiteSock.close()
+        graphiteSock.connect((self.host, self.port))
+        graphiteSock.sendall(metric)
+        graphiteSock.close()
 
     def publish_samples(self, context, samples):
         acct_list = []
@@ -158,9 +156,10 @@ class GraphitePublisher(publisher.PublisherBase):
                 LOG.debug('---> subMET Name: %s  Value: %s' % ('mem', imem))
                 LOG.debug('---> subMET Name: %s  Value: %s' % ('disk', idsk))
 
-        LOG.debug('OOOOO> ALLList: %s' % acct_list)
+        #LOG.debug('OOOOO> ALLList: %s' % acct_list)
         graph_string = '\n'.join(acct_list) + '\n'
         LOG.debug('OOOOO> GRAPHSTRING: %s' % graph_string)
+        self.graphitePush(graph_string)
 
         '''
             # ram,cpu, and disk is not present on all metrics
