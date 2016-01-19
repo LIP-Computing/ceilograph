@@ -110,14 +110,14 @@ class GraphitePublisher(publisher.PublisherBase):
             project_name = self._get_project_name(project_id)
             lmtr = ['instance', 'memory', 'disk', 'cpu']
             graph_tail = metric_name + ' ' + value + ' ' + stats_time
-            graph_hd1 = self.prefix_account + '.' + graph_tail
-            graph_hd2 = graph_hd1 + project_name + '.' + graph_tail
-            graph_hd3 = graph_hd2 + user_name + '.' + graph_tail
-            graph_hd4 = graph_hd3 + resource_id + '.' + graph_tail
-            acct_list.append(graph_hd1)
-            acct_list.append(graph_hd2)
-            acct_list.append(graph_hd3)
-            acct_list.append(graph_hd4)
+            graph_hd1 = self.prefix_account + '.'
+            graph_hd2 = graph_hd1 + project_name + '.'
+            graph_hd3 = graph_hd2 + user_name + '.'
+            graph_hd4 = graph_hd3 + resource_id + '.'
+            acct_list.append(graph_hd1+graph_tail)
+            acct_list.append(graph_hd2+graph_tail)
+            acct_list.append(graph_hd3+graph_tail)
+            acct_list.append(graph_hd4+graph_tail)
 
             LOG.debug('---> PROJECT Name: %s' % project_name)
             LOG.debug('---> USER Name: %s' % user_name)
@@ -130,30 +130,30 @@ class GraphitePublisher(publisher.PublisherBase):
                 graph_tail1 = 'vcpus' + ' ' + icpu + ' ' + stats_time
                 graph_tail2 = 'memory_mb' + ' ' + imem + ' ' + stats_time
                 graph_tail3 = 'disk_gb' + ' ' + idsk + ' ' + stats_time
-                graph_hd1 = self.prefix_account + '.' + graph_tail1
-                graph_hd2 = graph_hd1 + project_name + '.' + graph_tail1
-                graph_hd3 = graph_hd2 + user_name + '.' + graph_tail1
-                graph_hd4 = graph_hd3 + resource_id + '.' + graph_tail1
-                acct_list.append(graph_hd1)
-                acct_list.append(graph_hd2)
-                acct_list.append(graph_hd3)
-                acct_list.append(graph_hd4)
-                graph_hd1 = self.prefix_account + '.' + graph_tail2
-                graph_hd2 = graph_hd1 + project_name + '.' + graph_tail2
-                graph_hd3 = graph_hd2 + user_name + '.' + graph_tail2
-                graph_hd4 = graph_hd3 + resource_id + '.' + graph_tail2
-                acct_list.append(graph_hd1)
-                acct_list.append(graph_hd2)
-                acct_list.append(graph_hd3)
-                acct_list.append(graph_hd4)
-                graph_hd1 = self.prefix_account + '.' + graph_tail3
-                graph_hd2 = graph_hd1 + project_name + '.' + graph_tail3
-                graph_hd3 = graph_hd2 + user_name + '.' + graph_tail3
-                graph_hd4 = graph_hd3 + resource_id + '.' + graph_tail3
-                acct_list.append(graph_hd1)
-                acct_list.append(graph_hd2)
-                acct_list.append(graph_hd3)
-                acct_list.append(graph_hd4)
+                graph_hd1 = self.prefix_account + '.'
+                graph_hd2 = graph_hd1 + project_name + '.'
+                graph_hd3 = graph_hd2 + user_name + '.'
+                graph_hd4 = graph_hd3 + resource_id + '.'
+                acct_list.append(graph_hd1+graph_tail1)
+                acct_list.append(graph_hd2+graph_tail1)
+                acct_list.append(graph_hd3+graph_tail1)
+                acct_list.append(graph_hd4+graph_tail1)
+                graph_hd1 = self.prefix_account + '.'
+                graph_hd2 = graph_hd1 + project_name + '.'
+                graph_hd3 = graph_hd2 + user_name + '.'
+                graph_hd4 = graph_hd3 + resource_id + '.'
+                acct_list.append(graph_hd1+graph_tail2)
+                acct_list.append(graph_hd2+graph_tail2)
+                acct_list.append(graph_hd3+graph_tail2)
+                acct_list.append(graph_hd4+graph_tail2)
+                graph_hd1 = self.prefix_account + '.'
+                graph_hd2 = graph_hd1 + project_name + '.'
+                graph_hd3 = graph_hd2 + user_name + '.'
+                graph_hd4 = graph_hd3 + resource_id + '.'
+                acct_list.append(graph_hd1+graph_tail3)
+                acct_list.append(graph_hd2+graph_tail3)
+                acct_list.append(graph_hd3+graph_tail3)
+                acct_list.append(graph_hd4+graph_tail3)
                 LOG.debug('---> subMET Name: %s  Value: %s' % ('vcpus', icpu))
                 LOG.debug('---> subMET Name: %s  Value: %s' % ('mem', imem))
                 LOG.debug('---> subMET Name: %s  Value: %s' % ('disk', idsk))
