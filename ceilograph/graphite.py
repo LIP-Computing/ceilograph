@@ -29,7 +29,7 @@ from oslo_config import cfg
 from oslo_config import types
 from oslo_utils import netutils
 from keystoneclient import session as kssession
-from keystoneclient.middleware import auth_token
+#from keystoneclient.middleware import auth_token
 from keystoneclient.auth.identity import v3
 from keystoneclient.v3 import client as ksclient
 
@@ -39,7 +39,8 @@ from ceilometer.openstack.common import log
 from ceilometer import publisher
 
 cfg.CONF.import_opt('udp_port', 'ceilometer.collector', group='collector')
-cfg.CONF.import_group('keystone_authtoken', 'auth_token')
+cfg.CONF.import_group('keystone_authtoken',
+                      'keystoneclient.middleware.auth_token')
 PortType = types.Integer(1, 65535)
 OPTS = [cfg.Opt('default_port',
                 default=2003,
