@@ -29,7 +29,6 @@ from oslo_config import cfg
 from oslo_config import types
 from oslo_utils import netutils
 from keystoneclient import session as kssession
-from keystoneclient.middleware import auth_token
 from keystoneclient.auth.identity import v3
 from keystoneclient.v3 import client as ksclient
 
@@ -39,6 +38,9 @@ from ceilometer.openstack.common import log
 from ceilometer import publisher
 
 cfg.CONF.import_opt('udp_port', 'ceilometer.collector', group='collector')
+cfg.CONF.import_opt('os_username',
+                    'ceilometer.service',
+                    group='service_credentials')
 cfg.CONF.import_group('keystone_authtoken',
                       'keystoneclient.middleware.auth_token')
 PortType = types.Integer(1, 65535)
@@ -196,7 +198,7 @@ class GraphitePublisher(publisher.PublisherBase):
         return user_name
 
     def _get_keystone(self):
-        username = cfg.CONF.keystone_authtoken.username
+        username = cfg.CONF.service_credentials.os_username
         password = cfg.CONF.keystone_authtoken.password
         project_name = cfg.CONF.keystone_authtoken.project_name
         auth_url = cfg.CONF.keystone_authtoken.auth_url
