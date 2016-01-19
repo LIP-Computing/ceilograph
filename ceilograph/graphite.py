@@ -183,14 +183,14 @@ class GraphitePublisher(publisher.PublisherBase):
         """Get project name from the project ID
         :param project_id: project ID
         """
-        proj_name = 'someProj'
+        proj_name = self.ks.projects.get(project_id)
         return proj_name
 
     def _get_user_name(self, user_id):
         """Get user name from the user ID
         :param user_id: user ID
         """
-        user_name = 'someUser'
+        user_name = self.ks.users.get(user_id)
         return user_name
 
     def _get_keystone():
