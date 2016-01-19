@@ -95,11 +95,10 @@ class GraphitePublisher(publisher.PublisherBase):
     def publish_samples(self, context, samples):
         acct_list = []
         for sample in samples:
-            stats_time = time.time()
+            stats_time = str(time.time())
             msg = sample.as_dict()
             prefix = self.prefix
 
-            time_st = msg['timestamp']
             resource_id = msg['resource_id']
             project_id = msg['project_id']
             user_id = msg['user_id']
@@ -110,18 +109,58 @@ class GraphitePublisher(publisher.PublisherBase):
             user_name = self._get_user_name(user_id).replace('.', '_')
             project_name = self._get_project_name(project_id)
             lmtr = ['instance', 'memory', 'disk', 'cpu']
+            graph_tail = metric_name + ' ' + value + ' ' + stats_time
+            graph_hd1 = self.prefix_account + '.' + graph_tail
+            graph_hd2 = graph_hd1 + project_name + '.' + graph_tail
+            graph_hd3 = graph_hd2 + user_name + '.' + graph_tail
+            graph_hd4 = graph_hd3 + resource_id + '.' + graph_tail
+            acct_list.append(graph_hd1)
+            acct_list.append(graph_hd2)
+            acct_list.append(graph_hd3)
+            acct_list.append(graph_hd4)
 
             LOG.debug('---> PROJECT Name: %s' % project_name)
             LOG.debug('---> USER Name: %s' % user_name)
             LOG.debug('---> METRIC Name: %s  Value: %s' % (metric_name, value))
-            LOG.debug('---> TimeST: %s  TimeSamp: %s' % (stats_time, time_st))
+            LOG.debug('---> TimeST: %s' % stats_time)
             if any(i in metric_name for i in lmtr):
                 icpu = metad['vcpus']
                 imem = metad['memory_mb']
                 idsk = metad['disk_gb']
+                graph_tail1 = 'vcpus' + ' ' + icpu + ' ' + stats_time
+                graph_tail2 = 'memory_mb' + ' ' + imem + ' ' + stats_time
+                graph_tail3 = 'disk_gb' + ' ' + idsk + ' ' + stats_time
+                graph_hd1 = self.prefix_account + '.' + graph_tail1
+                graph_hd2 = graph_hd1 + project_name + '.' + graph_tail1
+                graph_hd3 = graph_hd2 + user_name + '.' + graph_tail1
+                graph_hd4 = graph_hd3 + resource_id + '.' + graph_tail1
+                acct_list.append(graph_hd1)
+                acct_list.append(graph_hd2)
+                acct_list.append(graph_hd3)
+                acct_list.append(graph_hd4)
+                graph_hd1 = self.prefix_account + '.' + graph_tail2
+                graph_hd2 = graph_hd1 + project_name + '.' + graph_tail2
+                graph_hd3 = graph_hd2 + user_name + '.' + graph_tail2
+                graph_hd4 = graph_hd3 + resource_id + '.' + graph_tail2
+                acct_list.append(graph_hd1)
+                acct_list.append(graph_hd2)
+                acct_list.append(graph_hd3)
+                acct_list.append(graph_hd4)
+                graph_hd1 = self.prefix_account + '.' + graph_tail3
+                graph_hd2 = graph_hd1 + project_name + '.' + graph_tail3
+                graph_hd3 = graph_hd2 + user_name + '.' + graph_tail3
+                graph_hd4 = graph_hd3 + resource_id + '.' + graph_tail3
+                acct_list.append(graph_hd1)
+                acct_list.append(graph_hd2)
+                acct_list.append(graph_hd3)
+                acct_list.append(graph_hd4)
                 LOG.debug('---> subMET Name: %s  Value: %s' % ('vcpus', icpu))
                 LOG.debug('---> subMET Name: %s  Value: %s' % ('mem', imem))
                 LOG.debug('---> subMET Name: %s  Value: %s' % ('disk', idsk))
+
+        LOG.debug('OOOOO> ALLList' % acct_list)
+        graph_string = '\n'.join(acct_list) + '\n'
+        LOG.debug('OOOOO> GRAPHSTRING' % graph_string)
 
         '''
             # ram,cpu, and disk is not present on all metrics
