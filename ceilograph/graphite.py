@@ -38,9 +38,8 @@ from ceilometer.openstack.common import log
 from ceilometer import publisher
 
 cfg.CONF.import_opt('udp_port', 'ceilometer.collector', group='collector')
-cfg.CONF.import_group('service_credentials', 'ceilometer.service')
 cfg.CONF.import_group('keystone_authtoken',
-                      'keystoneclient.')
+                      'keystoneclient.middleware.auth_token')
 PortType = types.Integer(1, 65535)
 OPTS = [cfg.Opt('default_port',
                 default=2003,
@@ -50,6 +49,10 @@ OPTS = [cfg.Opt('default_port',
                    default='tcp',
                    help='Protocol (tcp or udp) to use for '
                    'communicating with Graphite'),
+        cfg.StrOpt('os_user_id',
+                   help='Ceilometer user ID'),
+        cfg.StrOpt('os_tenant_id',
+                   help='Ceilometer project ID'),
         cfg.StrOpt('prefix',
                    default='ceilometer.',
                    help='Graphite prefix key'),
@@ -57,11 +60,7 @@ OPTS = [cfg.Opt('default_port',
                     default=True,
                     help='If the hypervisor should be added to the prefix'),
         ]
-#OPTadd = cfg.StrOpt('user_domain_id',
-#                    default='default',
-#                    help='User domain ID')
 cfg.CONF.register_opts(OPTS, group="graphite")
-#cfg.CONF.register_opts(OPTadd, group="keystone_authtoken")
 LOG = log.getLogger(__name__)
 
 
@@ -199,17 +198,15 @@ class GraphitePublisher(publisher.PublisherBase):
         return user_name
 
     def _get_keystone(self):
-        username = cfg.CONF.service_credentials.os_username
-        password = cfg.CONF.service_credentials.os_password
-        project_name = cfg.CONF.service_credentials.os_tenant_name
-        user_domain_id = 'default'
+        user_id = cfg.CONF.graphite.os_user_id
+        password = cfg.CONF.keystone_authtoken.os_password
+        project_id = cfg.CONF.graphite.os_tenant_id
         auth_uri = cfg.CONF.keystone_authtoken.auth_uri
         auth_version = cfg.CONF.keystone_authtoken.auth_version
         url = auth_uri + '/' + auth_version
         auth = v3.Password(auth_url=url,
-                           username=username,
+                           user_id=user_id,
                            password=password,
-                           user_domain_id=user_domain_id,
-                           project_name=project_name)
+                           project_id=project_id)
         sess = kssession.Session(auth=auth)
         return ksclient.Client(session=sess)
