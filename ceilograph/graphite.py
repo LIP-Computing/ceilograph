@@ -57,11 +57,11 @@ OPTS = [cfg.Opt('default_port',
                     default=True,
                     help='If the hypervisor should be added to the prefix'),
         ]
-OPTadd = cfg.StrOpt('user_domain_id',
-                    default='default',
-                    help='User domain ID')
+#OPTadd = cfg.StrOpt('user_domain_id',
+#                    default='default',
+#                    help='User domain ID')
 cfg.CONF.register_opts(OPTS, group="graphite")
-cfg.CONF.register_opts(OPTadd, group="keystone_authtoken")
+#cfg.CONF.register_opts(OPTadd, group="keystone_authtoken")
 LOG = log.getLogger(__name__)
 
 
@@ -202,7 +202,7 @@ class GraphitePublisher(publisher.PublisherBase):
         username = cfg.CONF.service_credentials.os_username
         password = cfg.CONF.service_credentials.os_password
         project_name = cfg.CONF.service_credentials.os_tenant_name
-        user_domain_id = cfg.CONF.keystone_authtoken.user_domain_id
+        user_domain_id = 'default'
         auth_uri = cfg.CONF.keystone_authtoken.auth_uri
         auth_version = cfg.CONF.keystone_authtoken.auth_version
         url = auth_uri + '/' + auth_version
