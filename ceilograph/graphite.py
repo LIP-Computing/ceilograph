@@ -28,8 +28,9 @@ import socket
 from oslo_config import cfg
 from oslo_config import types
 from oslo_utils import netutils
-from keystoneclient.auth.identity import v3
 from keystoneclient import session as kssession
+from keystoneclient.middleware import auth_token
+from keystoneclient.auth.identity import v3
 from keystoneclient.v3 import client as ksclient
 
 import ceilometer
