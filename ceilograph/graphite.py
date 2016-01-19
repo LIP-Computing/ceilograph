@@ -28,17 +28,17 @@ import socket
 from oslo_config import cfg
 from oslo_config import types
 from oslo_utils import netutils
+from keystoneclient import client as ksclient
+from keystoneclient.middleware import auth_token
 
 import ceilometer
 from ceilometer.i18n import _
 from ceilometer.openstack.common import log
 from ceilometer import publisher
 
+cfg.CONF.import_opt('udp_port', 'ceilometer.collector', group='collector')
+cfg.CONF.import_group('keystone_authtoken', 'auth_token')
 PortType = types.Integer(1, 65535)
-cfg.CONF.import_opt('udp_port',
-                    'ceilometer.collector',
-                    group='collector')
-
 OPTS = [cfg.Opt('default_port',
                 default=2003,
                 type=PortType,
@@ -67,6 +67,7 @@ class GraphitePublisher(publisher.PublisherBase):
 
         self.hostname = socket.gethostname().split('.')[0]
         self.prefix_account = "accounting.cloud." + self.hostname
+        self.ks = ksclient.Client(auth_url=
         if cfg.CONF.graphite.hypervisor_in_prefix:
             self.prefix = (cfg.CONF.graphite.prefix + self.hostname + ".")
         else:
@@ -106,6 +107,11 @@ class GraphitePublisher(publisher.PublisherBase):
             network_match = re.match('network', metric_name)
             disk_match = re.match('disk', metric_name)
             mem_match = re.match('memory', metric_name)
+            user_name = self._get_user_name(user_id)
+            project_name = self._get_project_name(project_id)
+
+            LOG.debug('---> PROJECTName: %s' % project_name)
+            LOG.debug('---> USERName: %s' % user_name)
 
             # ram,cpu, and disk is not present on all metrics
             if disk_match:
@@ -171,3 +177,30 @@ class GraphitePublisher(publisher.PublisherBase):
         :param events: events from pipeline after transformation
         """
         raise ceilometer.NotImplementedError
+
+    def _get_project_name(self, project_id):
+        """Get project name from the project ID
+        :param project_id: project ID
+        """
+        proj_name = 'someProj'
+        return proj_name
+
+    def _get_user_name(self, user_id):
+        """Get user name from the user ID
+        :param user_id: user ID
+        """
+        user_name = 'someUser'
+        return user_name
+
+    def _get_keystone():
+        try:
+            return ksclient.Client(
+                username=cfg.CONF.keystone_authtoken.username,
+                password=cfg.CONF.keystone_authtoken.password,
+                project_name=cfg.CONF.keystone_authtoken.project_name,
+                cacert=cfg.CONF.keystone_authtoken.cacert,
+                auth_uri=cfg.CONF.keystone_authtoken.auth_uri,
+                region_name=cfg.CONF.keystone_authtoken.os_region_name,
+                insecure=cfg.CONF.keystone_authtoken.insecure)
+        except Exception as e:
+            return e
