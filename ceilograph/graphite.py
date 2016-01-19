@@ -176,28 +176,30 @@ class GraphitePublisher(publisher.PublisherBase):
         LOG.debug('---> LISTACCT: %s' % acct_list)
 
     def publish_events(self, context, events):
-        """Send an event message for publishing
+        '''Send an event message for publishing
 
         :param context: Execution context from the service or RPC call
         :param events: events from pipeline after transformation
-        """
+        '''
         raise ceilometer.NotImplementedError
 
     def _get_project_name(self, project_id):
-        """Get project name from the project ID
+        '''Get project name from the project ID
         :param project_id: project ID
-        """
+        '''
         proj_name = self.ks.projects.get(project_id)
         return proj_name['name']
 
     def _get_user_name(self, user_id):
-        """Get user name from the user ID
+        '''Get user name from the user ID
         :param user_id: user ID
-        """
+        '''
         user_name = self.ks.users.get(user_id)
         return user_name['name']
 
     def _get_keystone(self):
+        '''Get keystone client session
+        '''
         user_id = cfg.CONF.graphite.os_user_id
         password = cfg.CONF.service_credentials.os_password
         project_id = cfg.CONF.graphite.os_tenant_id
