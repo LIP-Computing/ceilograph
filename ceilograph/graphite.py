@@ -106,13 +106,22 @@ class GraphitePublisher(publisher.PublisherBase):
             data_type = msg['type']
             value = str(msg['volume'])
             metric_name = msg['name']
-            user_name = self._get_user_name(user_id)
+            metad = msg['resource_metadata']
+            user_name = self._get_user_name(user_id).replace('.', '_')
             project_name = self._get_project_name(project_id)
+            lmtr = ['instance', 'memory', 'disk', 'cpu']
 
             LOG.debug('---> PROJECT Name: %s' % project_name)
             LOG.debug('---> USER Name: %s' % user_name)
             LOG.debug('---> METRIC Name: %s  Value: %s' % (metric_name, value))
             LOG.debug('---> TimeST: %s  TimeSamp: %s' % (stats_time, time_st))
+            if any(i in metric_name for i in lmtr):
+                icpu = metad['vcpus']
+                imem = metad['memory_mb']
+                idsk = metad['disk_gb']
+                LOG.debug('---> subMET Name: %s  Value: %s' % ('vcpus', icpu))
+                LOG.debug('---> subMET Name: %s  Value: %s' % ('mem', imem))
+                LOG.debug('---> subMET Name: %s  Value: %s' % ('disk', idsk))
 
         '''
             # ram,cpu, and disk is not present on all metrics
