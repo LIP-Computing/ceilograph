@@ -137,64 +137,6 @@ class GraphitePublisher(publisher.PublisherBase):
         LOG.debug('OOOOO> GRAPHSTRING: %s' % graph_string)
         self.graphitePush(graph_string)
 
-        '''
-            # ram,cpu, and disk is not present on all metrics
-            if disk_match:
-                ram = metadata['memory_mb']
-                vcpus = metadata['vcpus']
-                disk_gb = metadata['disk_gb']
-                vmid = metadata.get('instance_id')
-            if network_match:
-                vmid = metadata.get('instance_id')
-                vm = vmid
-            else:
-                vm = resource_id
-
-            if disk_match:
-                vmram = "%s%s.%s.memory %s %d\n" % (
-                    prefix, project_id, vm, ram, stats_time)
-                vmcpu = "%s%s.%s.cpu_count %s %d\n" % (
-                    prefix, project_id, vm, vcpus, stats_time)
-                vmdisk = "%s%s.%s.disk_space %s %d\n" % (
-                    prefix, project_id, vm, disk_gb, stats_time)
-
-                LOG.debug(_("[+] Graphite %s" % vmram))
-                LOG.debug(_("[+] Graphite %s" % vmcpu))
-                LOG.debug(_("[+] Graphite %s" % vmdisk))
-
-            # build the metrics to send to graphite
-            # We are only interested in the gauge data
-            # Skipping Instance related metrics
-            if data_type == 'gauge' and instance_match is None:
-                stats_time = time.time()
-                vmstat = "%s%s.%s.%s %s %d\n" % (
-                    prefix, project_id, vm, metric_name, volume, stats_time)
-                self.graphitePush(vmstat)
-                if disk_match:
-                    self.graphitePush(vmram)
-                    self.graphitePush(vmcpu)
-                    self.graphitePush(vmdisk)
-                print ""
-            else:
-                LOG.debug(_("[-]"))
-
-            # Publish accounting to graphite
-            # LOG.debug('---> MetricName: %s' % metric_name)
-            if metric_name == 'cpu_util' or mem_match:
-                acct = self.prefix_account + '.' + project_name + '.' \
-                    + user_name + '.' + metric_name + ' ' + str(volume) \
-                    + ' ' + str(stats_time) + '\n'
-                acct_list.append(acct)
-                LOG.debug('---> ACCT: %s' % acct)
-
-            try:
-                LOG.debug(_("OK"))
-            except Exception as e:
-                LOG.warn(_("Unable to send to Graphite"))
-                LOG.exception(e)
-        LOG.debug('---> LISTACCT: %s' % acct_list)
-        '''
-
     def publish_events(self, context, events):
         '''Send an event message for publishing
 
