@@ -40,7 +40,7 @@ from ceilometer import publisher
 cfg.CONF.import_opt('udp_port', 'ceilometer.collector', group='collector')
 cfg.CONF.import_group('service_credentials', 'ceilometer.service')
 cfg.CONF.import_group('keystone_authtoken',
-                      'keystoneclient.middleware.auth_token')
+                      'keystoneclient.')
 PortType = types.Integer(1, 65535)
 OPTS = [cfg.Opt('default_port',
                 default=2003,
@@ -57,8 +57,11 @@ OPTS = [cfg.Opt('default_port',
                     default=True,
                     help='If the hypervisor should be added to the prefix'),
         ]
-
+OPTadd = cfg.StrOpt('user_domain_id',
+                    default='default',
+                    help='User domain ID')
 cfg.CONF.register_opts(OPTS, group="graphite")
+cfg.CONF.register_opts(OPTadd, group="keystone_authtoken")
 LOG = log.getLogger(__name__)
 
 
@@ -199,12 +202,14 @@ class GraphitePublisher(publisher.PublisherBase):
         username = cfg.CONF.service_credentials.os_username
         password = cfg.CONF.service_credentials.os_password
         project_name = cfg.CONF.service_credentials.os_tenant_name
+        user_domain_id = cfg.CONF.keystone_authtoken.user_domain_id
         auth_uri = cfg.CONF.keystone_authtoken.auth_uri
         auth_version = cfg.CONF.keystone_authtoken.auth_version
         url = auth_uri + '/' + auth_version
         auth = v3.Password(auth_url=url,
                            username=username,
                            password=password,
+                           user_domain_id=user_domain_id,
                            project_name=project_name)
         sess = kssession.Session(auth=auth)
         return ksclient.Client(session=sess)
