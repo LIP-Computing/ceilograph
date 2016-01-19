@@ -124,9 +124,9 @@ class GraphitePublisher(publisher.PublisherBase):
             LOG.debug('---> METRIC Name: %s  Value: %s' % (metric_name, value))
             LOG.debug('---> TimeST: %s' % stats_time)
             if any(i in metric_name for i in lmtr):
-                icpu = metad['vcpus']
-                imem = metad['memory_mb']
-                idsk = metad['disk_gb']
+                icpu = str(metad['vcpus'])
+                imem = str(metad['memory_mb'])
+                idsk = str(metad['disk_gb'])
                 graph_tail1 = 'vcpus' + ' ' + icpu + ' ' + stats_time
                 graph_tail2 = 'memory_mb' + ' ' + imem + ' ' + stats_time
                 graph_tail3 = 'disk_gb' + ' ' + idsk + ' ' + stats_time
